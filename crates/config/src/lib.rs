@@ -39,6 +39,28 @@ pub fn load_dev_config() -> Result<DevConfig, ConfigError> {
     Ok(toml::from_str(&content)?)
 }
 
+pub fn load_env_file() -> std::collections::HashMap<String, String> {
+    let Ok(path) = find_file(".env") else {
+        return std::collections::HashMap::new();
+    };
+
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return std::collections::HashMap::new();
+    };
+
+    content
+        .lines()
+        .filter_map(|line| {
+            let line = line.trim();
+            if line.is_empty() || line.starts_with('#') {
+                return None;
+            }
+            let (key, value) = line.split_once('=')?;
+            Some((key.trim().to_string(), value.trim().to_string()))
+        })
+        .collect()
+}
+
 pub fn load_env_schema() -> Result<EnvSchema, ConfigError> {
     let path = find_file(".env.schema.toml")?;
     let content = std::fs::read_to_string(path)?;
