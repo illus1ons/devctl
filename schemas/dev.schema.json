@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/illus1ons/devctl/main/schemas/dev.schema.json",
+  "title": "devctl 설정 파일",
+  "description": "dev.toml — 로컬 개발 환경 설정",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "project": {
+      "description": "프로젝트 기본 정보",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "description": "프로젝트 이름",
+          "type": "string",
+          "examples": ["my-api"]
+        },
+        "description": {
+          "description": "프로젝트 설명",
+          "type": "string"
+        }
+      }
+    },
+
+    "doctor": {
+      "description": "`devctl doctor` 실행 시 수행할 체크 목록",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "description": "설치 여부를 확인할 CLI 도구 목록",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "examples": ["git", "docker", "cargo", "node", "psql"]
+          },
+          "examples": [["git", "docker", "cargo"]]
+        },
+        "checks": {
+          "description": "커스텀 체크 목록 (명령어 실행 또는 URL 응답 확인)",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "description": "체크 이름 (출력에 표시됨)",
+                "type": "string",
+                "examples": ["migrations up to date"]
+              },
+              "cmd": {
+                "description": "실행할 명령어 (exit code로 성공 여부 판단)",
+                "type": "string",
+                "examples": ["diesel migration pending"]
+              },
+              "url": {
+                "description": "헬스체크할 URL (HTTP GET 요청)",
+                "type": "string",
+                "format": "uri",
+                "examples": ["http://localhost:3000/health"]
+              },
+              "expect_exit": {
+                "description": "성공으로 판단할 exit code (기본값: 0)",
+                "type": "integer",
+                "default": 0
+              },
+              "expect_status": {
+                "description": "성공으로 판단할 HTTP 상태 코드",
+                "type": "integer",
+                "examples": [200]
+              },
+              "on_fail": {
+                "description": "실패 시 출력할 수정 방법",
+                "type": "string",
+                "examples": ["run: devctl run migrate"]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "services": {
+      "description": "로컬에서 실행할 서비스 목록. 키가 서비스 이름이 됩니다.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_-]*$": {
+          "description": "서비스 설정",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "description": "서비스 실행 방식",
+              "type": "string",
+              "enum": ["docker", "process"],
+              "enumDescriptions": [
+                "Docker 컨테이너로 실행",
+                "로컬 프로세스로 실행"
+              ]
+            },
+            "port": {
+              "description": "서비스가 사용하는 포트. doctor가 실행 여부를 이 포트로 확인합니다.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "examples": [5432, 6379, 3000]
+            },
+            "image": {
+              "description": "Docker 이미지 이름 (type = \"docker\" 일 때 사용)",
+              "type": "string",
+              "examples": ["postgres:16", "redis:7", "mysql:8"]
+            },
+            "cmd": {
+              "description": "실행 명령어 (type = \"process\" 일 때 사용)",
+              "type": "string",
+              "examples": ["cargo run", "npm run dev"]
+            },
+            "env": {
+              "description": "서비스에 전달할 환경변수",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "examples": [{ "POSTGRES_PASSWORD": "dev", "POSTGRES_DB": "mydb" }]
+            },
+            "health_check": {
+              "description": "서비스 준비 여부를 확인하는 명령어",
+              "type": "string",
+              "examples": ["pg_isready -U postgres", "redis-cli ping"]
+            },
+            "depends_on": {
+              "description": "이 서비스보다 먼저 실행되어야 하는 서비스 이름 목록",
+              "type": "array",
+              "items": { "type": "string" },
+              "examples": [["db", "redis"]]
+            },
+            "watch": {
+              "description": "파일 변경 시 서비스를 재시작할 glob 패턴 목록",
+              "type": "array",
+              "items": { "type": "string" },
+              "examples": [["src/**/*.rs", "templates/**"]]
+            }
+          }
+        }
+      }
+    },
+
+    "tasks": {
+      "description": "`devctl run <task>` 으로 실행할 태스크 목록. 키가 태스크 이름이 됩니다.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_-]*$": {
+          "description": "태스크 설정",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cmd"],
+          "properties": {
+            "cmd": {
+              "description": "실행할 명령어",
+              "type": "string",
+              "examples": ["cargo build --release", "cargo test", "diesel migration run"]
+            },
+            "description": {
+              "description": "태스크 설명 (`devctl run --list` 에 표시됨)",
+              "type": "string"
+            },
+            "depends_on": {
+              "description": "이 태스크 실행 전에 먼저 실행할 태스크 또는 서비스 이름",
+              "type": "array",
+              "items": { "type": "string" },
+              "examples": [["db", "migrate"]]
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "examples": [
+    {
+      "project": { "name": "my-api" },
+      "doctor": {
+        "tools": ["git", "docker", "cargo"]
+      },
+      "services": {
+        "db": {
+          "type": "docker",
+          "image": "postgres:16",
+          "port": 5432,
+          "env": { "POSTGRES_PASSWORD": "dev" },
+          "health_check": "pg_isready -U postgres"
+        },
+        "redis": {
+          "type": "docker",
+          "image": "redis:7",
+          "port": 6379
+        },
+        "app": {
+          "type": "process",
+          "cmd": "cargo run",
+          "port": 3000,
+          "depends_on": ["db", "redis"],
+          "watch": ["src/**/*.rs"]
+        }
+      },
+      "tasks": {
+        "build": { "cmd": "cargo build --release" },
+        "test": { "cmd": "cargo test", "depends_on": ["db"] },
+        "migrate": { "cmd": "diesel migration run", "depends_on": ["db"] }
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+#:schema https://raw.githubusercontent.com/illus1ons/devctl/main/schemas/dev.schema.json
+
+[project]
+name = "devctl"
+
+[doctor]
+tools = ["git", "cargo"]
