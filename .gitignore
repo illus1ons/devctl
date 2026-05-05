@@ -1,1 +1,48 @@
+# Rust
 /target
+Cargo.lock
+
+# OS — macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# OS — Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# OS — Linux
+*~
+.fuse_hidden*
+.Trash-*
+
+# IDE — VS Code
+.vscode/
+*.code-workspace
+
+# IDE — JetBrains (IntelliJ, CLion, RustRover 등)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE — Vim / Neovim
+*.swp
+*.swo
+*.swn
+Session.vim
+.netrwhist
+
+# IDE — Emacs
+*#
+.#*
+\#*#
+
+# IDE — Zed
+.zed/
+
+# devctl
+.serena/
