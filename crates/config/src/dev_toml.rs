@@ -21,5 +21,9 @@ pub struct DoctorConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct ServiceConfig {
+    #[serde(rename = "type")]
+    pub service_type: Option<String>,
     pub port: Option<u16>,
+    pub image: Option<String>,
+    pub cmd: Option<String>,
 }

@@ -8,8 +8,10 @@ tools = ["git", "cargo"]
 
 [services.db]
 type = "docker"
+image = "postgres:16"
 port = 5432
 
 [services.redis]
 type = "docker"
+image = "redis:7"
 port = 6379

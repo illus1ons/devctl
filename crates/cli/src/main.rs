@@ -16,6 +16,11 @@ enum Commands {
     Doctor,
     /// 서비스 실행 상태 확인
     Status,
+    /// 서비스 실행
+    Up {
+        /// 특정 서비스만 실행 (생략 시 전체)
+        service: Option<String>,
+    },
     /// 환경변수 관리
     Env {
         #[command(subcommand)]
@@ -39,6 +44,7 @@ fn main() {
     match cli.command {
         Commands::Doctor => commands::doctor::execute(),
         Commands::Status => commands::status::execute(),
+        Commands::Up { service } => commands::up::execute(service),
         Commands::Env { command } => match command {
             EnvCommands::Check => commands::env::check(),
             EnvCommands::Diff => commands::env::diff(),
