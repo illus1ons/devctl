@@ -5,3 +5,11 @@ name = "devctl"
 
 [doctor]
 tools = ["git", "cargo"]
+
+[services.db]
+type = "docker"
+port = 5432
+
+[services.redis]
+type = "docker"
+port = 6379

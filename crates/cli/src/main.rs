@@ -14,6 +14,7 @@ struct Cli {
 enum Commands {
     /// 개발 환경 진단
     Doctor,
+    Status,
 }
 
 fn main() {
@@ -21,5 +22,6 @@ fn main() {
 
     match cli.command {
         Commands::Doctor => commands::doctor::execute(),
+        Commands::Status => commands::status::execute(),
     }
 }
