@@ -21,6 +21,11 @@ enum Commands {
         /// 특정 서비스만 실행 (생략 시 전체)
         service: Option<String>,
     },
+    /// 서비스 종료
+    Down {
+        /// 특정 서비스만 종료 (생략 시 전체)
+        service: Option<String>,
+    },
     /// 환경변수 관리
     Env {
         #[command(subcommand)]
@@ -45,6 +50,7 @@ fn main() {
         Commands::Doctor => commands::doctor::execute(),
         Commands::Status => commands::status::execute(),
         Commands::Up { service } => commands::up::execute(service),
+        Commands::Down { service } => commands::down::execute(service),
         Commands::Env { command } => match command {
             EnvCommands::Check => commands::env::check(),
             EnvCommands::Diff => commands::env::diff(),
